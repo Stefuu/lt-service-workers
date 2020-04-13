@@ -1,28 +1,7 @@
-/* global self caches clients fetch */
+/* global self clients */
 const version = 11
-const cacheName = 'myCache'
 
 console.log('Service Worker code:' + version)
-
-self.addEventListener('install', function (event) {
-  console.log('WORKER: install event in progress.')
-  event.waitUntil(
-    caches
-      .open(cacheName)
-      .then(function (cache) {
-        return cache.addAll([
-          '/',
-          '/styles.css',
-          '/public/bundle.js',
-          '/offline.json'
-        ])
-      })
-      .then(function () {
-        console.log('WORKER: install completed.')
-      })
-      .catch(err => console.log('WORKER: install event error', err))
-  )
-})
 
 self.addEventListener('activate', event => {
   console.log('WORKER: activate event in progress.')
@@ -33,35 +12,19 @@ self.addEventListener('activate', event => {
   )
 })
 
-self.addEventListener('fetch', function (event) {
-  event.respondWith(
-    fetch(event.request).catch(async () => {
-      if (await cacheExists(event.request)) {
-        return caches.match(event.request)
-      }
-      return caches.match('/offline.json')
-    })
-  )
-})
-
 self.addEventListener('message', (event) => {
-  if (event.data === 'save_post_1') {
-    event.waitUntil(
-      caches
-        .open(cacheName)
-        .then((cache) => cache.addAll(['http://localhost:9001/post/1']))
-        .then(() => console.log('WORKER: added post to cache.'))
-        .catch(err => console.log('WORKER: error adding post to cache', err))
-    )
+  if (event.data.msg === 'calculate') {
+    self.clients.matchAll().then(function (client) {
+      client[0].postMessage({
+        msg: fibonacci(event.data.num)
+      })
+    })
   }
 })
 
-const cacheExists = (request) => {
-  return caches.open(cacheName)
-    .then(function (cache) {
-      return cache.match(request)
-        .then(function (response) {
-          return !!response
-        })
-    })
+// 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, ...
+function fibonacci (num) {
+  if (num <= 1) return 1
+
+  return fibonacci(num - 1) + fibonacci(num - 2)
 }
