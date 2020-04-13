@@ -45,7 +45,6 @@ self.addEventListener('fetch', function (event) {
 })
 
 self.addEventListener('message', (event) => {
-  console.log('event message', event)
   if (event.data === 'save_post_1') {
     event.waitUntil(
       caches

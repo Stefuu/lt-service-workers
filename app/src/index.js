@@ -1,5 +1,10 @@
 const axios = require('axios')
 const postRoute = 'http://localhost:9001/post/1'
+const buttonContainer = document.querySelector('#button-container')
+
+window.addEventListener('offline', () => {
+  buttonContainer.style.display = 'none'
+})
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker
@@ -7,11 +12,15 @@ if ('serviceWorker' in navigator) {
     .then(handleServiceWorkerActive)
 }
 
-function handleServiceWorkerActive (reg) {
-  const button = document.querySelector('.cache-article')
-  button.addEventListener('click', () => {
-    navigator.serviceWorker.controller.postMessage('save_post_1')
-  })
+function handleServiceWorkerActive () {
+  if (navigator.onLine) {
+    const button = document.createElement('button')
+    button.innerText = 'Save for offline'
+    buttonContainer.appendChild(button)
+    button.addEventListener('click', () => {
+      navigator.serviceWorker.controller.postMessage('save_post_1')
+    })
+  }
 }
 
 axios.get(postRoute)
@@ -21,6 +30,4 @@ axios.get(postRoute)
     titleElement.append(data.title)
     contentElement.innerHTML = data.content
   })
-  .catch(() => {
-    navigator.serviceWorker.controller.postMessage('error_loading_content')
-  })
+  .catch((err) => console.log(err))
