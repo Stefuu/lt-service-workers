@@ -1,5 +1,3 @@
-const axios = require('axios')
-const postRoute = 'http://localhost:9001/post/1'
 const buttonEl = document.querySelector('.calculate-button')
 const changeColorEl = document.querySelector('.change-color')
 const resultEl = document.querySelector('.result')
@@ -13,6 +11,7 @@ if ('serviceWorker' in navigator) {
 function handleServiceWorkerActive () {
   buttonEl.addEventListener('click', () => {
     const num = document.querySelector('.num').value
+    if (num > 40) return
 
     // SW
     // navigator.serviceWorker.controller.postMessage({
@@ -27,7 +26,7 @@ function handleServiceWorkerActive () {
 
   changeColorEl.addEventListener('click', () => {
     const currentColor = document.body.style.backgroundColor
-    document.body.style.backgroundColor = currentColor === 'lightgray' ? 'white' : 'lightgray'
+    document.body.style.backgroundColor = currentColor === 'gray' ? 'white' : 'gray'
   })
 
   navigator.serviceWorker.addEventListener('message', event => {
@@ -41,12 +40,3 @@ function fibonacci (num) {
 
   return fibonacci(num - 1) + fibonacci(num - 2)
 }
-
-axios.get(postRoute)
-  .then(function ({ data }) {
-    const titleElement = document.getElementById('title')
-    const contentElement = document.getElementById('content')
-    titleElement.append(data.title)
-    contentElement.innerHTML = data.content
-  })
-  .catch((err) => console.log(err))
