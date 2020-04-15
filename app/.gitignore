@@ -1,5 +1,6 @@
 # Build
 dist/
+public/bundle.js
 
 # Logs
 logs
